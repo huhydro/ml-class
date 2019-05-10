@@ -4,6 +4,7 @@ from keras.layers import Dense, Dropout, Activation
 from keras.layers import Embedding
 from keras.layers import CuDNNLSTM as LSTM
 from keras.layers import Conv1D, Flatten
+from keras.layers import Bidirectional
 from keras.datasets import imdb
 import wandb
 from wandb.keras import WandbCallback
@@ -15,7 +16,7 @@ wandb.init()
 config = wandb.config
 
 # set parameters:
-config.vocab_size = 1000
+config.vocab_size = 2000
 config.maxlen = 300
 config.batch_size = 32
 config.embedding_dims = 50
@@ -26,9 +27,15 @@ config.epochs = 10
 
 (X_train, y_train), (X_test, y_test) = imdb.load_imdb()
 
+print("Before ", X_train[0])
 tokenizer = text.Tokenizer(num_words=config.vocab_size)
 tokenizer.fit_on_texts(X_train)
+print("Mid ", X_train[0])
+
 X_train = tokenizer.texts_to_sequences(X_train)
+print("After ", X_train[0])
+#print("X_train.shape",X_train.shape)
+#exit()
 X_test = tokenizer.texts_to_sequences(X_test)
 
 X_train = sequence.pad_sequences(X_train, maxlen=config.maxlen)
@@ -38,7 +45,12 @@ model = Sequential()
 model.add(Embedding(config.vocab_size,
                     config.embedding_dims,
                     input_length=config.maxlen))
-model.add(LSTM(50))
+model.add(Bidirectional(LSTM(150)))
+model.add(Dropout(0.2))
+model.add(Dense(100, activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(20, activation='relu'))
+model.add(Dropout(0.1))
 model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy',
               optimizer='rmsprop',
