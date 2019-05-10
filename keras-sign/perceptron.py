@@ -18,6 +18,14 @@ config.epochs = 10
 (X_test, y_test) = signdata.load_test_data()
 (X_train, y_train) = signdata.load_train_data()
 
+print("X train shape")
+print(X_train.shape)
+print("Y train shape")
+print(y_train.shape)
+print(y_train)
+for i in range(26):
+    print("{}:{}".format(i,np.sum(y_train==i)))
+
 img_width = X_test.shape[1]
 img_height = X_test.shape[2]
 
@@ -35,8 +43,25 @@ X_test = X_test.astype('float32') / 255.
 
 # create model
 model = Sequential()
-model.add(Flatten(input_shape=(img_width, img_height)))
-model.add(Dense(num_classes, activation="softmax"))
+
+#model.add(Flatten(input_shape=(img_width, img_height)))
+#model.add(Dense(1000,activation="relu"))
+#model.add(Dropout(0.25))
+#model.add(Dense(500,activation="relu"))
+#model.add(Dense(num_classes, activation="softmax"))
+model.add(Reshape((img_width,img_height,1),input_shape=(img_width,img_height)))
+model.add(Conv2D(8,(3,3),activation="relu"))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=None, padding='valid', data_format=None))
+model.add(Conv2D(32,(3,3),activation="relu"))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=None, padding='valid', data_format=None))
+model.add(Conv2D(64,(3,3),activation="relu"))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=None, padding='valid', data_format=None))
+model.add(Flatten())
+model.add(Dense(1000,activation="relu"))
+model.add(Dropout(0.2))
+model.add(Dense(400,activation="relu"))
+model.add(Dropout(0.1))
+model.add(Dense(num_classes,activation="softmax"))
 model.compile(loss=config.loss, optimizer=config.optimizer,
               metrics=['accuracy'])
 
