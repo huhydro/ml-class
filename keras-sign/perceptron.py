@@ -10,7 +10,7 @@ from wandb.keras import WandbCallback
 # logging code
 run = wandb.init()
 config = run.config
-config.loss = "categorical_crossentropy"
+config.loss = "mae"
 config.optimizer = "adam"
 config.epochs = 10
 
@@ -32,7 +32,6 @@ img_height = X_test.shape[2]
 # one hot encode outputs
 y_train = np_utils.to_categorical(y_train)
 y_test = np_utils.to_categorical(y_test)
-
 num_classes = y_train.shape[1]
 
 # you may want to normalize the data here..
